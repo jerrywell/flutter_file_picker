@@ -121,16 +121,20 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     @Override
     public boolean onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
-        final boolean permissionGranted =
-                grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        if (this.pendingResult != null) {//accept it only it's handling channel
+            final boolean permissionGranted =
+                    grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
 
-        if (permissionGranted) {
-            this.startFileExplorer();
+            if (permissionGranted) {
+                this.startFileExplorer();
+            } else {
+                finishWithError("read_external_storage_denied", "User did not allowed reading external storage");
+            }
+
+            return true;
         } else {
-            finishWithError("read_external_storage_denied", "User did not allowed reading external storage");
+            return false;
         }
-
-        return true;
     }
 
     private boolean setPendingMethodCallAndResult(final MethodChannel.Result result) {
